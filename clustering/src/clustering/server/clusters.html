@@ -1,0 +1,264 @@
+<html>
+   <head>
+      <!DOCTYPE html>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <link href="/css/default.css" rel="stylesheet" type="text/css"/>
+      <link href="/css/cssLayout.css" rel="stylesheet" type="text/css"/>
+      <title>Recipes</title>
+      <style>
+         circle {
+         fill: rgb(31, 129, 70);
+         fill-opacity: .25;
+         stroke: rgb(31, 119, 180);
+         stroke-width: 1px;
+         }
+         .leaf circle {
+         fill: #FFFFFF;
+         fill-opacity: 1;
+         }
+         .cl0 {
+         color: #AFC9C6;
+         font-weight:bold;
+         }
+         .cl1 {
+         color: #FC434C;
+         font-weight:bold;
+         }
+         .cl2 {
+         color: #78A2AA;
+         font-weight:bold;
+         }
+         .cl4 {
+         color: #F7CF3C;
+         font-weight:bold;
+         }
+         .cl3 {
+         color: #FAA54A;
+         font-weight:bold;
+         }
+         .cl5 {
+         color: #78AA82;
+         font-weight:bold;
+         }
+         .cluster circle {
+         fill: #EBDDE2;
+         fill-opacity: 1;
+         }
+         .cluster1 circle {
+         fill: #FC434C;
+         fill-opacity: 1;
+         }
+         .cluster2 circle {
+         fill: #78A2AA;
+         fill-opacity: 1;
+         }
+         .cluster4 circle {
+         fill: #F7CF3C;
+         fill-opacity: 1;
+         }
+         .cluster3 circle {
+         fill: #FAA54A;
+         fill-opacity: 1;
+         }
+         .cluster5 circle {
+         fill: #78AA82;
+         fill-opacity: 1;
+         }
+         text {
+         font: 10px sans-serif;
+         }
+      </style>
+      <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+      <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script> 
+      <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+      <script>
+         $(function() {
+         $( "#tabs" ).tabs();
+         });
+      </script>
+   </head>
+   <body>
+      <div id="top">
+         <h1>Popular breakfast recipes</h1>
+      </div>
+      <div id='center_div'>
+      <div id="left">
+      </div>
+      <div>
+         <div id="right">
+            <div id='recipe'>
+               <h2 id='rname'>Recipe</h2>
+               <img width='200px' height='100px' id='rimg'/>
+               <br/>
+               <div id="rdesc"  style="min-height:0px;max-height:200px;overflow:auto;"></div>
+               <br/>
+               <div id="tabs">
+                  <ul>
+                     <li><a href="#tabs-1">Ingredients</a></li>
+                     <li><a href="#tabs-2">Directions</a></li>
+                  </ul>
+                  <div id="tabs-1">
+                     <div style="height:200px; overflow:auto;">
+                        <ul id='ingrs'/>
+                     </div>
+                  </div>
+                  <div id="tabs-2">
+                     <div style="height:200px;overflow:auto; text-align: justify;" id='direcs'/></div>
+                  </div>
+                  <br/>
+                  <b style="font-size:14px;">Nutritional Facts</b>
+                  <p id='ryield'/>
+                  <div id='nutr' >
+                  </div>
+                  <a id='link' target='_blank'/>
+               </div>
+            </div>
+            <div id="content" class="right_content">
+               <script>
+                  $('#recipe').hide();
+               </script> 
+               <script src="http://d3js.org/d3.v3.min.js"></script>
+               <script>
+                  function renderIngredients(data){
+                  	var list = data == null ? [] : (data instanceof Array ? data : [data]);
+                  	$('#ingrs li').remove();
+                  	$.each(list, function(index, ingr) {
+                  		$('#ingrs').append('<li>'+ingr+'</li>');
+                  	});
+                  }
+                  
+                  function renderNutrition(data){
+                     $('#nutr p').remove();
+                     $('#nutr').append('<p><span style="font-weight:600">calories: </span>'+ data.calories +'</p>');
+                     
+                     $('#nutr').append('<p><span style="font-weight:600">saturated fat: </span>'+ data.saturatedFatContent +"g"+'</p>');
+                     $('#nutr').append('<p><span style="font-weight:600">cholesterol: </span>'+ data.cholesterolContent +"mg"+'</p>');
+                     $('#nutr').append('<p><span style="font-weight:600">sodium: </span>'+ data.sodiumContent +"mg"+'</p>');
+                     $('#nutr').append('<p><span style="font-weight:600">dietary fiber: </span>'+ data.fiberContent +"g"+'</p>');
+                     $('#nutr').append('<p><span style="font-weight:600">sugar: </span>'+ data.sugarContent +"g"+'</p>');
+                     $('#nutr').append('<p><span style="font-weight:600">protein: </span>'+ data.proteinContent +"g"+'</p>');
+                  }
+                  
+                  function renderDirections(data){
+                  	$('#direcs').html(data);
+                  	
+                  }
+                  
+                  function renderRecipe(data){
+                     $('#rimg').attr('src', data.image);
+                     $('#rname').text(data.title);
+                     $('#rdesc').html(data.summary);
+                     $('#ryield').html("<b>serving size </b>"+data.recipeYield);
+                     renderIngredients(data.ingredients);
+                     renderDirections(data.instructions[0]); 
+                     renderNutrition(data.nutrition);
+                     
+                      $('#link').attr('href', data.url);
+                      $('#link').text("more");
+                      $('#recipe').show();
+                  }
+                  function findByID(id){
+                      
+                  	$.ajax({
+                  		type: 'GET',
+                  		url: 'http://localhost:8080/id/' + id,
+                  		cache: false,
+                  		data: { 
+                          'id': id,
+                      },
+                  		success: function (data, textStatus, jqXHR) {
+                  		renderRecipe(data);
+                     
+                  },
+                  		error: function(jqXHR, textStatus, errorThrown){
+                  			alert('error: ' + textStatus);
+                  		}
+                  	});	
+                  } 
+                  
+                  var diameter = 900,
+                      format = d3.format(",d");
+                  
+                  var pack = d3.layout.pack()
+                      .size([diameter - 4, diameter - 4])
+                      .value(function(d) { return d.size; });
+                  
+                  
+                  
+                  var svg = d3.select("#content").append("svg")
+                      .attr("width", diameter)
+                      .attr("height", diameter)
+                    .append("g")
+                      .attr("transform", "translate(2,2)");
+                   
+                   /*
+                   function setColorClusterCircle(d){
+                      switch (d.cat)
+                      {
+                         case 1: "cluster1"
+                                      break;
+                         case 2: "cluster2"
+                                      break; 
+                         case 3: "cluster3"
+                                      break;
+                         case 4: "cluster4"
+                                      break;
+                         default: "cluster5"
+                      } 
+                   }*/
+                      
+                   function setColorCircle(d){
+                      {return d.parent ? "cluster"+d.cat+" node" : "node";}
+                   }   
+                  
+                  d3.json("/data/clusters.json", function(error, root) {
+                    var node = svg.datum(root).selectAll(".node")
+                        .data(pack.nodes)
+                      .enter().append("g")
+                        .attr("class", function(d) { return d.children ? setColorCircle(d) : "leaf node"; })
+                        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                        
+                  
+                    node.append("title")
+                        .text(function(d) { return d.name; });
+                  
+                    node.append("circle")
+                        .attr("r", function(d) { return d.r; });
+                        
+                  
+                    var ch = node.filter(function(d) { return !d.children; });
+                    ch.append("text")
+                        .attr("dy", ".3em")
+                        .style("text-anchor", "middle")
+                        .text(function(d) { return d.name.substring(0, d.r / 3); });
+                    ch.on("click", function click(d) {
+                            /*findByID(d.id);*/
+                            renderRecipe(d.data);
+                           }) ; 
+                           
+                     var parents = node.filter(function(d) { return d.children; });
+                      var con = d3.select("#content");
+                  
+                  var l = con.append("ul");
+                  l.attr("style", "background-color:#FFFFFF; width:50%;");
+                  parents.each(function(p) {
+                      
+                        var l1 =  l.append("li");
+                        l1.text(p.name);
+                        l1.attr("class", function(y) { return p.cat ? "cl"+p.cat : "cl0"; });
+                  });       
+                     
+                  });
+                    
+                  d3.select(self.frameElement).style("height", diameter + "px");
+ 
+               </script>
+            </div>
+         </div>
+      </div>
+      <div id="bottom">
+         
+      </div>
+   </body>
+</html>
+
