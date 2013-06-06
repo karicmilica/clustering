@@ -6,6 +6,14 @@ Main functionalities:
  1. filling database with the recipes
  2. divide recipes into groups
 
+1) First, application finds links to recipes in the specific web pages (https://food.com pages). 
+Then, call service "Microdata to RDF Distiller" to extract recipe data based on recipe url. At the end, 
+recipes are stored in database (MongoDB).
+Some ideas related to managing agents are taken from book "Clojure Programming" Chas Emerick,Brian Carper,
+and Christophe Grand (Chapter 4. Concurrency and Parallelism - Agents).    
+
+2) Application uses *k-means clustering* to divide recipes into groups based on their nutrition. 
+
 ## Usage
 
 It's necessary to start MongoDB before running the application. Database used in this project is MongoDB 2.2.3 
